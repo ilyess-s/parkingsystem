@@ -13,7 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 
-public class TicketDAO {
+public class    TicketDAO {
 
     private static final Logger logger = LogManager.getLogger("TicketDAO");
 
@@ -86,4 +86,33 @@ public class TicketDAO {
         }
         return false;
     }
+
+    public int getNbTicket(String vehicleRegNumber) {
+        int nbTicket = 0;
+        Connection con = null;
+
+        try {
+            con = dataBaseConfig.getConnection();
+            PreparedStatement ps = con.prepareStatement(
+                    "SELECT COUNT(*) FROM ticket WHERE VEHICLE_REG_NUMBER = ?"
+            );
+            ps.setString(1, vehicleRegNumber);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                nbTicket = rs.getInt(1);
+            }
+
+            dataBaseConfig.closeResultSet(rs);
+            dataBaseConfig.closePreparedStatement(ps);
+
+        } catch (Exception ex) {
+            logger.error("Error counting tickets", ex);
+        } finally {
+            dataBaseConfig.closeConnection(con);
+        }
+
+        return nbTicket;
+    }
+
 }

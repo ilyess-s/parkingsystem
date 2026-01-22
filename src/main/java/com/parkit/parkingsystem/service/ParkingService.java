@@ -27,6 +27,12 @@ public class ParkingService {
         this.ticketDAO = ticketDAO;
     }
 
+    public ParkingService(ParkingSpotDAO parkingSpotDAOMock) {
+    }
+
+    public ParkingService(InputReaderUtil inputReaderUtil) {
+    }
+
     public void processIncomingVehicle() {
         try{
             ParkingSpot parkingSpot = getNextParkingNumberIfAvailable();
@@ -78,7 +84,7 @@ public class ParkingService {
         return parkingSpot;
     }
 
-    private ParkingType getVehichleType(){
+    public ParkingType getVehichleType(){
         System.out.println("Please select vehicle type from menu");
         System.out.println("1 CAR");
         System.out.println("2 BIKE");

@@ -104,23 +104,37 @@ public class ParkingService {
     }
 
     public void processExitingVehicle() {
-        try{
+        try {
             String vehicleRegNumber = getVehichleRegNumber();
             Ticket ticket = ticketDAO.getTicket(vehicleRegNumber);
             Date outTime = new Date();
             ticket.setOutTime(outTime);
-            fareCalculatorService.calculateFare(ticket);
-            if(ticketDAO.updateTicket(ticket)) {
+
+            // Check if vehicle is recurrent
+            int nbTickets = ticketDAO.getNbTicket(vehicleRegNumber);
+            boolean isRecurrent = nbTickets > 1; // more than 1 visit = recurrent
+
+            if (isRecurrent) {
+                System.out.println("Applying a 5% discount...");
+            }
+
+            // Calculate fare with discount if recurrent
+            fareCalculatorService.calculateFare(ticket, isRecurrent);
+
+            if (ticketDAO.updateTicket(ticket)) {
                 ParkingSpot parkingSpot = ticket.getParkingSpot();
                 parkingSpot.setAvailable(true);
                 parkingSpotDAO.updateParking(parkingSpot);
-                System.out.println("Please pay the parking fare:" + ticket.getPrice());
-                System.out.println("Recorded out-time for vehicle number:" + ticket.getVehicleRegNumber() + " is:" + outTime);
-            }else{
+                System.out.println("Please pay the parking fare: " + ticket.getPrice());
+                System.out.println("Recorded out-time for vehicle number: " + ticket.getVehicleRegNumber() + " is: " + outTime);
+            } else {
                 System.out.println("Unable to update ticket information. Error occurred");
             }
-        }catch(Exception e){
-            logger.error("Unable to process exiting vehicle",e);
+
+        } catch (Exception e) {
+            logger.error("Unable to process exiting vehicle", e);
         }
     }
+
+
 }

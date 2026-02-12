@@ -104,24 +104,36 @@ public class ParkingService {
     }
 
     public void processExitingVehicle() {
-        try{
+        try {
 <span class="fc" id="L108">            String vehicleRegNumber = getVehichleRegNumber();</span>
 <span class="fc" id="L109">            Ticket ticket = ticketDAO.getTicket(vehicleRegNumber);</span>
 <span class="fc" id="L110">            Date outTime = new Date();</span>
 <span class="fc" id="L111">            ticket.setOutTime(outTime);</span>
-<span class="fc" id="L112">            fareCalculatorService.calculateFare(ticket);</span>
-<span class="fc bfc" id="L113" title="All 2 branches covered.">            if(ticketDAO.updateTicket(ticket)) {</span>
-<span class="fc" id="L114">                ParkingSpot parkingSpot = ticket.getParkingSpot();</span>
-<span class="fc" id="L115">                parkingSpot.setAvailable(true);</span>
-<span class="fc" id="L116">                parkingSpotDAO.updateParking(parkingSpot);</span>
-<span class="fc" id="L117">                System.out.println(&quot;Please pay the parking fare:&quot; + ticket.getPrice());</span>
-<span class="fc" id="L118">                System.out.println(&quot;Recorded out-time for vehicle number:&quot; + ticket.getVehicleRegNumber() + &quot; is:&quot; + outTime);</span>
-<span class="fc" id="L119">            }else{</span>
-<span class="fc" id="L120">                System.out.println(&quot;Unable to update ticket information. Error occurred&quot;);</span>
+
+            // Check if vehicle is recurrent
+<span class="fc" id="L114">            int nbTickets = ticketDAO.getNbTicket(vehicleRegNumber); // &lt;-- count previous tickets</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">            boolean isRecurrent = nbTickets &gt; 1;</span>
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">            if (isRecurrent) {</span>
+<span class="nc" id="L117">                System.out.println(&quot;Welcome back! You get a 5% discount.&quot;);</span>
             }
-<span class="nc" id="L122">        }catch(Exception e){</span>
-<span class="nc" id="L123">            logger.error(&quot;Unable to process exiting vehicle&quot;,e);</span>
-<span class="fc" id="L124">        }</span>
-<span class="fc" id="L125">    }</span>
+
+            // Calculate fare with discount if recurrent
+<span class="fc" id="L121">            fareCalculatorService.calculateFare(ticket, isRecurrent);</span>
+
+<span class="fc bfc" id="L123" title="All 2 branches covered.">            if (ticketDAO.updateTicket(ticket)) {</span>
+<span class="fc" id="L124">                ParkingSpot parkingSpot = ticket.getParkingSpot();</span>
+<span class="fc" id="L125">                parkingSpot.setAvailable(true);</span>
+<span class="fc" id="L126">                parkingSpotDAO.updateParking(parkingSpot);</span>
+<span class="fc" id="L127">                System.out.println(&quot;Please pay the parking fare: &quot; + ticket.getPrice());</span>
+<span class="fc" id="L128">                System.out.println(&quot;Recorded out-time for vehicle number: &quot; + ticket.getVehicleRegNumber() + &quot; is:&quot; + outTime);</span>
+<span class="fc" id="L129">            } else {</span>
+<span class="fc" id="L130">                System.out.println(&quot;Unable to update ticket information. Error occurred&quot;);</span>
+            }
+
+<span class="nc" id="L133">        } catch (Exception e) {</span>
+<span class="nc" id="L134">            logger.error(&quot;Unable to process exiting vehicle&quot;, e);</span>
+<span class="fc" id="L135">        }</span>
+<span class="fc" id="L136">    }</span>
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

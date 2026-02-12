@@ -9,66 +9,50 @@ import java.util.Date;
 
 <span class="fc" id="L10">public class FareCalculatorService {</span>
 
-    public void calculateFare(Ticket ticket){
-<span class="pc bpc" id="L13" title="1 of 4 branches missed.">        if( (ticket.getOutTime() == null) || (ticket.getOutTime().before(ticket.getInTime())) ){</span>
-<span class="fc" id="L14">            throw new IllegalArgumentException(&quot;Out time provided is incorrect:&quot;+ticket.getOutTime().toString());</span>
+    public void calculateFare(Ticket ticket, boolean discount) {
+
+<span class="pc bpc" id="L14" title="1 of 2 branches missed.">        if ((ticket.getOutTime() == null)</span>
+<span class="fc bfc" id="L15" title="All 2 branches covered.">                || (ticket.getOutTime().before(ticket.getInTime()))) {</span>
+<span class="fc" id="L16">            throw new IllegalArgumentException(</span>
+<span class="fc" id="L17">                    &quot;Out time provided is incorrect:&quot; + ticket.getOutTime());</span>
         }
 
+<span class="fc" id="L20">        Date inTime = ticket.getInTime();</span>
+<span class="fc" id="L21">        Date outTime = ticket.getOutTime();</span>
 
-        /*Calendar inCalendar = Calendar.getInstance();
-        inCalendar.setTime(ticket.getInTime());
+<span class="fc" id="L23">        Instant inInstant = inTime.toInstant();</span>
+<span class="fc" id="L24">        Instant outInstant = outTime.toInstant();</span>
 
-        Calendar outCalendar = Calendar.getInstance();
-        outCalendar.setTime(ticket.getOutTime());
+<span class="fc" id="L26">        Duration duration = Duration.between(inInstant, outInstant);</span>
+<span class="fc" id="L27">        long durationInMinutes = duration.toMinutes();</span>
+<span class="fc" id="L28">        double durationInHours = durationInMinutes / 60.0;</span>
 
-
-        int inMinutes = inCalendar.get(Calendar.HOUR_OF_DAY) * 60 + inCalendar.get(Calendar.MINUTE);
-        int outMinutes = outCalendar.get(Calendar.HOUR_OF_DAY) * 60 + outCalendar.get(Calendar.MINUTE);*/
-
-<span class="fc" id="L28">        Date inTime = ticket.getInTime();</span>
-<span class="fc" id="L29">        Date outTime = ticket.getOutTime();</span>
-
-<span class="fc" id="L31">        Instant inInstant = inTime.toInstant();</span>
-<span class="fc" id="L32">        Instant outInstant = outTime.toInstant();</span>
-
-<span class="fc" id="L34">        Duration duration = Duration.between(inInstant, outInstant);</span>
-<span class="fc" id="L35">        long durationInMinutes = duration.toMinutes();</span>
-<span class="fc" id="L36">        double durationInHours = duration.toMinutes() / 60.0;</span>
-<span class="fc" id="L37">        double price = 0.0;</span>
-        /*
-        //long durationInHours = duration.toHours();
-        //Duration in mins
-        //int durationInMinutes = outMinutes - inMinutes;
-        //System.out.println(&quot;Duration in minutes: &quot; + durationInMinutes);
-        //Duration in hours
-        */
-<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if (durationInMinutes &lt;= 30) {</span>
-<span class="nc" id="L46">            ticket.setPrice(0.0); // First 30 minutes are free</span>
-<span class="nc" id="L47">            System.out.println(&quot;Fare is 0.0 (first 30 minutes free)&quot;);</span>
-<span class="nc" id="L48">            return;</span>
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">        if (durationInMinutes &lt;= 30) {</span>
+<span class="nc" id="L31">            ticket.setPrice(0.0);</span>
+<span class="nc" id="L32">            return;</span>
         }
-<span class="pc bpc" id="L50" title="1 of 3 branches missed.">        switch (ticket.getParkingSpot().getParkingType()){</span>
-            case CAR: {
-                //ticket.setPrice(durationInHours * Fare.CAR_RATE_PER_HOUR);
-<span class="fc" id="L53">                price = durationInHours * Fare.CAR_RATE_PER_HOUR;</span>
-<span class="fc" id="L54">                break;</span>
-            }
-            case BIKE: {
-                //ticket.setPrice(durationInHours * Fare.BIKE_RATE_PER_HOUR);
-<span class="fc" id="L58">                price = durationInHours * Fare.BIKE_RATE_PER_HOUR;</span>
 
-<span class="fc" id="L60">                break;</span>
-            }
+        double price;
+
+<span class="pc bpc" id="L37" title="1 of 3 branches missed.">        switch (ticket.getParkingSpot().getParkingType()) {</span>
+            case CAR:
+<span class="fc" id="L39">                price = durationInHours * Fare.CAR_RATE_PER_HOUR;</span>
+<span class="fc" id="L40">                break;</span>
+            case BIKE:
+<span class="fc" id="L42">                price = durationInHours * Fare.BIKE_RATE_PER_HOUR;</span>
+<span class="fc" id="L43">                break;</span>
             default:
-<span class="nc" id="L63">                throw new IllegalArgumentException(&quot;Unkown Parking Type&quot;);</span>
+<span class="nc" id="L45">                throw new IllegalArgumentException(&quot;Unknown Parking Type&quot;);</span>
         }
-<span class="fc" id="L65">        System.out.println(&quot;Calculated fare: &quot; + ticket.getPrice());</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (discount) {</span>
+<span class="fc" id="L48">            price = price * 0.95;</span>
+        }
 
-<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (ticket.isRecurrentUser()) {</span>
-<span class="fc" id="L68">            price = price * (1 - Fare.RECURRENT_USER_DISCOUNT);</span>
-        }
-<span class="fc" id="L70">        ticket.setPrice(price);</span>
-<span class="fc" id="L71">        System.out.println(&quot;Calculated fare: &quot; + ticket.getPrice());</span>
-<span class="fc" id="L72">    }</span>
+<span class="fc" id="L51">        ticket.setPrice(price);</span>
+<span class="fc" id="L52">    }</span>
+
+    public void calculateFare(Ticket ticket) {
+<span class="fc" id="L55">        calculateFare(ticket, false);</span>
+<span class="fc" id="L56">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

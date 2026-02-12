@@ -240,6 +240,30 @@ public class ParkingServiceTest {
                 "Invalid vehicle type selection should throw exception");
     }
 
+    @Test
+    public void processExitingVehicle_recurrentUser_shouldApplyDiscount() throws Exception {
+
+        String regNumber = "ABCDEF";
+        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR, false);
+        Ticket ticket = new Ticket();
+        ticket.setInTime(new Date(System.currentTimeMillis() - (60 * 60 * 1000)));
+        ticket.setParkingSpot(parkingSpot);
+        ticket.setVehicleRegNumber(regNumber);
+
+        when(inputReaderUtil.readVehicleRegistrationNumber()).thenReturn(regNumber);
+        when(ticketDAO.getTicket(regNumber)).thenReturn(ticket);
+
+        // 👇 THIS IS THE IMPORTANT LINE
+        when(ticketDAO.getNbTicket(regNumber)).thenReturn(2);
+
+        when(ticketDAO.updateTicket(any(Ticket.class))).thenReturn(true);
+        when(parkingSpotDAO.updateParking(any(ParkingSpot.class))).thenReturn(true);
+
+        parkingService.processExitingVehicle();
+
+        verify(ticketDAO, times(1)).updateTicket(any(Ticket.class));
+        verify(parkingSpotDAO, times(1)).updateParking(any(ParkingSpot.class));
+    }
 
 
 }

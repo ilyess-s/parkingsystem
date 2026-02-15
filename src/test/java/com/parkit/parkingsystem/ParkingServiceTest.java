@@ -253,7 +253,6 @@ public class ParkingServiceTest {
         when(inputReaderUtil.readVehicleRegistrationNumber()).thenReturn(regNumber);
         when(ticketDAO.getTicket(regNumber)).thenReturn(ticket);
 
-        // 👇 THIS IS THE IMPORTANT LINE
         when(ticketDAO.getNbTicket(regNumber)).thenReturn(2);
 
         when(ticketDAO.updateTicket(any(Ticket.class))).thenReturn(true);
